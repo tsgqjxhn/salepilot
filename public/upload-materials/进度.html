@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SalesPilot · 15 天敏捷开发计划</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .progress-track {
+            background: rgba(255,255,255,0.3);
+            border-radius: 5px;
+            height: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #00f260, #0575e6);
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 20px;
+        }
+
+        .day-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .day-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .day-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .day-header h3 {
+            font-size: 1.2em;
+        }
+
+        .day-status {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .day-content {
+            padding: 20px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1em;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #667eea;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: '📋';
+        }
+
+        .section-title.backend::before {
+            content: '⚙️';
+        }
+
+        .section-title.frontend::before {
+            content: '🎨';
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+
+        .task-item:hover {
+            background: #f8f9ff;
+            border-radius: 5px;
+            padding-left: 5px;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: #667eea;
+            flex-shrink: 0;
+        }
+
+        .task-text {
+            flex: 1;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .time-estimate {
+            background: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            color: #666;
+            margin-left: 10px;
+            white-space: nowrap;
+        }
+
+        .milestone-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .milestone-card h2 {
+            margin-bottom: 15px;
+        }
+
+        .milestone-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .milestone-item {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .milestone-item strong {
+            display: block;
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .tech-stack {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .tech-stack h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .tech-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .tech-item strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .tech-item span {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .tips {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 30px;
+        }
+
+        .tips h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .tips ul {
+            color: #856404;
+            margin-left: 20px;
+        }
+
+        .tips li {
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .days-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 SalesPilot · AI 销售 CRM</h1>
+            <p>15 天敏捷开发计划 | 每日 6 小时 | 新手友好版</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-info">
+                <span>整体进度</span>
+                <span id="progress-text">0%</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="tech-stack">
+            <h3>📚 技术栈概览</h3>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <strong>前端框架</strong>
+                    <span>Vue 3 + TypeScript</span>
+                </div>
+                <div class="tech-item">
+                    <strong>UI 组件</strong>
+                    <span>Element Plus</span>
+                </div>
+                <div class="tech-item">
+                    <strong>状态管理</strong>
+                    <span>Pinia</span>
+                </div>
+                <div class="tech-item">
+                    <strong>后端框架</strong>
+                    <span>Node.js + Express</span>
+                </div>
+                <div class="tech-item">
+                    <strong>数据库</strong>
+                    <span>MongoDB</span>
+                </div>
+                <div class="tech-item">
+                    <strong>AI 接口</strong>
+                    <span>通义千问/DeepSeek</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="milestone-card">
+            <h2>🎯 三大里程碑</h2>
+            <div class="milestone-grid">
+                <div class="milestone-item">
+                    <strong>第 5 天</strong>
+                    <span>基础框架完成</span>
+                </div>
+                <div class="milestone-item">
+                    <strong>第 10 天</strong>
+                    <span>核心功能完成</span>
+                </div>
+                <div class="milestone-item">
+                    <strong>第 15 天</strong>
+                    <span>项目上线部署</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="days-grid" id="days-grid">
+            <!-- 动态生成每日任务卡片 -->
+        </div>
+
+        <div class="tips">
+            <h4>💡 新手开发建议</h4>
+            <ul>
+                <li>每天开始前先复习前一天的代码，确保理解</li>
+                <li>遇到报错先复制错误信息到搜索引擎查找</li>
+                <li>每个功能完成后立即测试，不要累积到最后</li>
+                <li>善用 Git 提交代码，每完成一个功能就 commit 一次</li>
+                <li>AI 功能可以最后调试，先保证基础 CRUD 正常</li>
+            </ul>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="saveProgress()">
+                💾 保存进度
+            </button>
+            <button class="btn btn-secondary" onclick="loadProgress()">
+                📂 加载进度
+            </button>
+            <button class="btn btn-secondary" onclick="resetProgress()">
+                🔄 重置进度
+            </button>
+            <button class="btn btn-primary" onclick="exportReport()">
+                📊 导出报告
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 15 天开发任务数据
+        const developmentPlan = [
+            {
+                day: 1,
+                title: "环境搭建 & 项目初始化",
+                date: "第 1 天",
+                backend: [
+                    { text: "安装 Node.js (v18+) 并验证", time: "30 分钟" },
+                    { text: "安装 MongoDB (本地或 Atlas 免费云数据库)", time: "45 分钟" },
+                    { text: "创建后端项目文件夹，初始化 package.json", time: "30 分钟" },
+                    { text: "安装 Express、Mongoose、bcrypt、jsonwebtoken 依赖", time: "30 分钟" },
+                    { text: "创建基础目录结构 (controllers/models/routes/middlewares)", time: "45 分钟" },
+                    { text: "配置 MongoDB 连接，测试数据库连通性", time: "60 分钟" }
+                ],
+                frontend: [
+                    { text: "安装 Vue 3 + Vite + TypeScript 脚手架", time: "45 分钟" },
+                    { text: "安装 Element Plus、Pinia、Vue Router、Axios", time: "30 分钟" },
+                    { text: "配置项目目录结构 (views/components/stores/api)", time: "45 分钟" },
+                    { text: "配置 ESLint + Prettier 代码规范", time: "30 分钟" },
+                    { text: "创建基础布局组件 (Header/Sidebar/Main)", time: "60 分钟" }
+                ]
+            },
+            {
+                day: 2,
+                title: "用户认证系统",
+                date: "第 2 天",
+                backend: [
+                    { text: "创建 User 模型 Schema (email/password/role/companyId)", time: "45 分钟" },
+                    { text: "创建 Company 模型 Schema (公司名称/套餐限制)", time: "30 分钟" },
+                    { text: "实现注册接口 (密码 bcrypt 加密)", time: "60 分钟" },
+                    { text: "实现登录接口 (JWT 双令牌机制)", time: "60 分钟" },
+                    { text: "创建 JWT 认证中间件", time: "45 分钟" }
+                ],
+                frontend: [
+                    { text: "创建登录页面 (表单验证 + 错误提示)", time: "60 分钟" },
+                    { text: "创建注册页面 (公司信息 + 用户信息)", time: "60 分钟" },
+                    { text: "实现 Auth Store (token 管理 + 用户信息)", time: "45 分钟" },
+                    { text: "配置 Axios 拦截器 (自动附加 Token)", time: "45 分钟" }
+                ]
+            },
+            {
+                day: 3,
+                title: "客户管理模块 - 后端",
+                date: "第 3 天",
+                backend: [
+                    { text: "创建 Customer 模型 Schema (完整字段定义)", time: "60 分钟" },
+                    { text: "实现客户列表接口 (分页 + 筛选 + 搜索)", time: "60 分钟" },
+                    { text: "实现客户详情接口", time: "30 分钟" },
+                    { text: "实现客户创建接口", time: "45 分钟" },
+                    { text: "实现客户更新接口", time: "45 分钟" },
+                    { text: "实现客户软删除接口", time: "30 分钟" }
+                ],
+                frontend: [
+                    { text: "创建客户列表页面 (表格展示)", time: "60 分钟" },
+                    { text: "实现搜索和筛选功能", time: "45 分钟" },
+                    { text: "创建客户详情页面", time: "60 分钟" },
+                    { text: "实现新建客户弹窗表单", time: "45 分钟" }
+                ]
+            },
+            {
+                day: 4,
+                title: "客户管理模块 - 前端完善",
+                date: "第 4 天",
+                backend: [
+                    { text: "实现客户状态流转接口", time: "45 分钟" },
+                    { text: "添加客户数据校验规则", time: "30 分钟" },
+                    { text: "实现批量操作接口 (批量分配/删除)", time: "45 分钟" },
+                    { text: "添加 API 接口文档 (Swagger 或 Apifox)", time: "60 分钟" }
+                ],
+                frontend: [
+                    { text: "创建客户看板视图 (拖拽状态切换)", time: "90 分钟" },
+                    { text: "实现客户编辑功能", time: "60 分钟" },
+                    { text: "添加客户标签管理", time: "45 分钟" },
+                    { text: "实现客户导出功能 (Excel/CSV)", time: "45 分钟" }
+                ]
+            },
+            {
+                day: 5,
+                title: "跟进记录模块",
+                date: "第 5 天",
+                backend: [
+                    { text: "创建 Followup 模型 Schema", time: "45 分钟" },
+                    { text: "实现跟进记录创建接口", time: "45 分钟" },
+                    { text: "实现跟进记录列表接口 (按客户分组)", time: "45 分钟" },
+                    { text: "创建跟进方式枚举 (电话/微信/邮件等)", time: "30 分钟" },
+                    { text: "实现客户时间线接口", time: "45 分钟" }
+                ],
+                frontend: [
+                    { text: "创建跟进记录表单组件", time: "60 分钟" },
+                    { text: "实现客户详情页时间线展示", time: "60 分钟" },
+                    { text: "添加跟进方式图标选择器", time: "30 分钟" },
+                    { text: "实现下次跟进时间提醒", time: "30 分钟" },
+                    { text: "🎉 里程碑：基础 CRUD 完成", time: "30 分钟" }
+                ]
+            },
+            {
+                day: 6,
+                title: "AI 模块 - 基础架构",
+                date: "第 6 天",
+                backend: [
+                    { text: "申请 AI API Key (通义千问/DeepSeek)", time: "30 分钟" },
+                    { text: "创建 AI Gateway 网关类", time: "60 分钟" },
+                    { text: "实现非流式调用方法 (成交预测用)", time: "60 分钟" },
+                    { text: "实现流式调用方法 SSE (日报生成用)", time: "60 分钟" },
+                    { text: "添加重试机制和超时处理", time: "30 分钟" }
+                ],
+                frontend: [
+                    { text: "创建 AI Result 模型 Schema", time: "45 分钟" },
+                    { text: "实现 SSE 连接 Composable", time: "60 分钟" },
+                    { text: "创建 AI 分析结果展示组件", time: "45 分钟" },
+                    { text: "添加加载状态和错误处理", time: "30 分钟" }
+                ]
+            },
+            {
+                day: 7,
+                title: "AI 成交概率预测",
+                date: "第 7 天",
+                backend: [
+                    { text: "设计成交预测 Prompt 模板", time: "60 分钟" },
+                    { text: "实现 triggerPrediction 函数", time: "60 分钟" },
+                    { text: "实现 AI 结果缓存机制 (12 小时)", time: "45 分钟" },
+                    { text: "实现结果解析和校验函数", time: "45 分钟" },
+                    { text: "创建 AI 分析触发接口", time: "30 分钟" }
+                ],
+                frontend: [
+                    { text: "创建 AI 分析面板组件", time: "60 分钟" },
+                    { text: "实现评分可视化 (圆环进度条)", time: "45 分钟" },
+                    { text: "添加正向信号和风险点展示", time: "45 分钟" },
+                    { text: "实现手动重新分析功能", time: "30 分钟" }
+                ]
+            },
+            {
+                day: 8,
+                title: "AI 流失预警系统",
+                date: "第 8 天",
+                backend: [
+                    { text: "创建 Notification 模型 Schema", time: "45 分钟" },
+                    { text: "实现流失预警定时任务 (每天 9 点)", time: "60 分钟" },
+                    { text: "设计流失风险判断逻辑 (7/14/30 天)", time: "45 分钟" },
+                    { text: "实现预警通知生成接口", time: "45 分钟" },
+                    { text: "创建通知列表接口", time: "30 分钟" }
+                ],
+                frontend: [
+                    { text: "创建通知中心组件", time: "60 分钟" },
+                    { text: "实现通知列表和已读标记", time: "45 分钟" },
+                    { text: "添加预警等级颜色标识", time: "30 分钟" },
+                    { text: "实现通知跳转客户详情", time: "30 分钟" }
+                ]
+            },
+            {
+                day: 9,
+                title: "AI 销售日报生成",
+                date: "第 9 天",
+                backend: [
+                    { text: "设计日报 Prompt 模板", time: "45 分钟" },
+                    { text: "实现日报数据聚合查询", time: "60 分钟" },
+                    { text: "实现 generateDailyReport 函数 (SSE)", time: "60 分钟" },
+                    { text: "添加日报缓存机制", time: "30 分钟" },
+                    { text: "创建日报生成接口", time: "30 分钟" }
+                ],
+                frontend: [
+                    { text: "创建日报页面", time: "60 分钟" },
+                    { text: "实现流式打字效果展示", time: "60 分钟" },
+                    { text: "添加一键复制功能", time: "30 分钟" },
+                    { text: "实现日报分享 (钉钉/微信)", time: "30 分钟" }
+                ]
+            },
+            {
+                day: 10,
+                title: "数据统计看板",
+                date: "第 10 天",
+                backend: [
+                    { text: "实现销售概览统计接口", time: "45 分钟" },
+                    { text: "实现销售漏斗聚合查询", time: "60 分钟" },
+                    { text: "实现销售额趋势接口", time: "45 分钟" },
+                    { text: "实现团队排行榜接口", time: "45 分钟" },
+                    { text: "🎉 里程碑：核心功能完成", time: "30 分钟" }
+                ],
+                frontend: [
+                    { text: "安装 ECharts 图表库", time: "30 分钟" },
+                    { text: "创建数据大盘页面", time: "60 分钟" },
+                    { text: "实现销售额趋势折线图", time: "45 分钟" },
+                    { text: "实现客户来源分布饼图", time: "45 分钟" },
+                    { text: "实现转化漏斗图", time: "45 分钟" }
+                ]
+            },
+            {
+                day: 11,
+                title: "权限管理系统",
+                date: "第 11 天",
+                backend: [
+                    { text: "完善 RBAC 角色权限矩阵", time: "45 分钟" },
+                    { text: "实现权限验证中间件", time: "60 分钟" },
+                    { text: "添加管理员用户管理接口", time: "45 分钟" },
+                    { text: "实现团队数据隔离逻辑", time: "45 分钟" }
+                ],
+                frontend: [
+                    { text: "创建权限 Composable", time: "45 分钟" },
+                    { text: "实现菜单权限控制", time: "60 分钟" },
+                    { text: "添加按钮级权限控制", time: "45 分钟" },
+                    { text: "创建用户管理页面 (管理员)", time: "60 分钟" }
+                ]
+            },
+            {
+                day: 12,
+                title: "多租户数据隔离",
+                date: "第 12 天",
+                backend: [
+                    { text: "实现 companyId 自动注入中间件", time: "60 分钟" },
+                    { text: "添加跨租户访问防护", time: "45 分钟" },
+                    { text: "实现数据隔离集成测试", time: "60 分钟" },
+                    { text: "添加 JWT Token 刷新接口", time: "45 分钟" }
+                ],
+                frontend: [
+                    { text: "实现 Token 无感刷新机制", time: "60 分钟" },
+                    { text: "添加登录态过期处理", time: "45 分钟" },
+                    { text: "优化请求错误统一处理", time: "45 分钟" },
+                    { text: "添加加载状态全局管理", time: "30 分钟" }
+                ]
+            },
+            {
+                day: 13,
+                title: "系统优化 & 测试",
+                date: "第 13 天",
+                backend: [
+                    { text: "添加 API 请求限流", time: "45 分钟" },
+                    { text: "实现错误日志记录", time: "45 分钟" },
+                    { text: "优化数据库查询性能 (索引)", time: "60 分钟" },
+                    { text: "编写核心接口单元测试", time: "60 分钟" }
+                ],
+                frontend: [
+                    { text: "添加页面加载骨架屏", time: "45 分钟" },
+                    { text: "实现表单防抖优化", time: "30 分钟" },
+                    { text: "添加操作成功/失败提示", time: "45 分钟" },
+                    { text: "进行端到端功能测试", time: "90 分钟" }
+                ]
+            },
+            {
+                day: 14,
+                title: "部署准备",
+                date: "第 14 天",
+                backend: [
+                    { text: "配置生产环境变量", time: "30 分钟" },
+                    { text: "创建 Railway/Render 部署配置", time: "60 分钟" },
+                    { text: "配置 MongoDB Atlas 生产数据库", time: "45 分钟" },
+                    { text: "设置 CORS 和安全头", time: "45 分钟" },
+                    { text: "编写部署文档", time: "60 分钟" }
+                ],
+                frontend: [
+                    { text: "配置 Vite 生产构建", time: "30 分钟" },
+                    { text: "创建 Vercel 部署配置", time: "45 分钟" },
+                    { text: "优化打包体积 (代码分割)", time: "60 分钟" },
+                    { text: "添加 SEO 元标签", time: "30 分钟" },
+                    { text: "进行生产环境测试", time: "45 分钟" }
+                ]
+            },
+            {
+                day: 15,
+                title: "上线 & 文档",
+                date: "第 15 天",
+                backend: [
+                    { text: "执行生产环境部署", time: "60 分钟" },
+                    { text: "验证所有 API 接口正常", time: "60 分钟" },
+                    { text: "配置域名和 HTTPS", time: "45 分钟" },
+                    { text: "设置监控和告警", time: "45 分钟" }
+                ],
+                frontend: [
+                    { text: "执行前端生产部署", time: "45 分钟" },
+                    { text: "编写用户使用手册", time: "60 分钟" },
+                    { text: "录制功能演示视频", time: "60 分钟" },
+                    { text: "🎉 项目完成！庆祝上线！", time: "45 分钟" }
+                ]
+            }
+        ];
+
+        // 初始化页面
+        function init() {
+            renderDays();
+            loadProgress();
+        }
+
+        // 渲染每日任务卡片
+        function renderDays() {
+            const grid = document.getElementById('days-grid');
+            grid.innerHTML = developmentPlan.map(day => `
+                <div class="day-card" id="day-${day.day}">
+                    <div class="day-header">
+                        <h3>Day ${day.day} · ${day.title}</h3>
+                        <span class="day-status" id="status-${day.day}">0%</span>
+                    </div>
+                    <div class="day-content">
+                        <div class="section">
+                            <div class="section-title backend">后端任务</div>
+                            <ul class="task-list">
+                                ${day.backend.map((task, idx) => `
+                                    <li class="task-item" id="task-b-${day.day}-${idx}">
+                                        <input type="checkbox" class="task-checkbox" 
+                                            onchange="toggleTask(${day.day}, 'b', ${idx})">
+                                        <span class="task-text">${task.text}</span>
+                                        <span class="time-estimate">⏱️ ${task.time}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                        <div class="section">
+                            <div class="section-title frontend">前端任务</div>
+                            <ul class="task-list">
+                                ${day.frontend.map((task, idx) => `
+                                    <li class="task-item" id="task-f-${day.day}-${idx}">
+                                        <input type="checkbox" class="task-checkbox" 
+                                            onchange="toggleTask(${day.day}, 'f', ${idx})">
+                                        <span class="task-text">${task.text}</span>
+                                        <span class="time-estimate">⏱️ ${task.time}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 切换任务完成状态
+        function toggleTask(day, type, idx) {
+            const taskId = `task-${type}-${day}-${idx}`;
+            const taskItem = document.getElementById(taskId);
+            const checkbox = taskItem.querySelector('.task-checkbox');
+            
+            if (checkbox.checked) {
+                taskItem.classList.add('completed');
+            } else {
+                taskItem.classList.remove('completed');
+            }
+            
+            updateProgress();
+            saveProgress();
+        }
+
+        // 更新进度
+        function updateProgress() {
+            let totalTasks = 0;
+            let completedTasks = 0;
+            
+            developmentPlan.forEach(day => {
+                const backendCount = day.backend.length;
+                const frontendCount = day.frontend.length;
+                totalTasks += backendCount + frontendCount;
+                
+                day.backend.forEach((_, idx) => {
+                    const checkbox = document.querySelector(`#task-b-${day.day}-${idx} .task-checkbox`);
+                    if (checkbox && checkbox.checked) completedTasks++;
+                });
+                
+                day.frontend.forEach((_, idx) => {
+                    const checkbox = document.querySelector(`#task-f-${day.day}-${idx} .task-checkbox`);
+                    if (checkbox && checkbox.checked) completedTasks++;
+                });
+                
+                // 更新每日进度
+                const dayCompleted = day.backend.filter((_, i) => {
+                    const cb = document.querySelector(`#task-b-${day.day}-${i} .task-checkbox`);
+                    return cb && cb.checked;
+                }).length + day.frontend.filter((_, i) => {
+                    const cb = document.querySelector(`#task-f-${day.day}-${i} .task-checkbox`);
+                    return cb && cb.checked;
+                }).length;
+                
+                const dayTotal = backendCount + frontendCount;
+                const dayPercent = Math.round((dayCompleted / dayTotal) * 100);
+                document.getElementById(`status-${day.day}`).textContent = `${dayPercent}%`;
+            });
+            
+            // 更新总进度
+            const totalPercent = Math.round((completedTasks / totalTasks) * 100);
+            document.getElementById('progress-fill').style.width = `${totalPercent}%`;
+            document.getElementById('progress-text').textContent = `${totalPercent}%`;
+        }
+
+        // 保存进度到 localStorage
+        function saveProgress() {
+            const progress = {};
+            developmentPlan.forEach(day => {
+                day.backend.forEach((_, idx) => {
+                    const checkbox = document.querySelector(`#task-b-${day.day}-${idx} .task-checkbox`);
+                    if (checkbox) progress[`b-${day.day}-${idx}`] = checkbox.checked;
+                });
+                day.frontend.forEach((_, idx) => {
+                    const checkbox = document.querySelector(`#task-f-${day.day}-${idx} .task-checkbox`);
+                    if (checkbox) progress[`f-${day.day}-${idx}`] = checkbox.checked;
+                });
+            });
+            localStorage.setItem('salespilot_progress', JSON.stringify(progress));
+            showNotification('✅ 进度已保存', 'success');
+        }
+
+        // 加载进度
+        function loadProgress() {
+            const saved = localStorage.getItem('salespilot_progress');
+            if (!saved) return;
+            
+            const progress = JSON.parse(saved);
+            Object.entries(progress).forEach(([key, checked]) => {
+                const checkbox = document.querySelector(`#task-${key} .task-checkbox`);
+                if (checkbox) {
+                    checkbox.checked = checked;
+                    if (checked) {
+                        document.getElementById(`task-${key}`).classList.add('completed');
+                    }
+                }
+            });
+            updateProgress();
+        }
+
+        // 重置进度
+        function resetProgress() {
+            if (!confirm('确定要重置所有进度吗？此操作不可恢复。')) return;
+            
+            document.querySelectorAll('.task-checkbox').forEach(cb => {
+                cb.checked = false;
+            });
+            document.querySelectorAll('.task-item').forEach(item => {
+                item.classList.remove('completed');
+            });
+            
+            localStorage.removeItem('salespilot_progress');
+            updateProgress();
+            showNotification('🔄 进度已重置', 'info');
+        }
+
+        // 导出报告
+        function exportReport() {
+            let report = 'SalesPilot 开发进度报告\n';
+            report += '=' .repeat(50) + '\n\n';
+            
+            developmentPlan.forEach(day => {
+                const dayCompleted = day.backend.filter((_, i) => {
+                    const cb = document.querySelector(`#task-b-${day.day}-${i} .task-checkbox`);
+                    return cb && cb.checked;
+                }).length + day.frontend.filter((_, i) => {
+                    const cb = document.querySelector(`#task-f-${day.day}-${i} .task-checkbox`);
+                    return cb && cb.checked;
+                }).length;
+                
+                const dayTotal = day.backend.length + day.frontend.length;
+                const percent = Math.round((dayCompleted / dayTotal) * 100);
+                
+                report += `Day ${day.day}: ${day.title} [${percent}%]\n`;
+                report += '-'.repeat(40) + '\n';
+                
+                day.backend.forEach((task, idx) => {
+                    const cb = document.querySelector(`#task-b-${day.day}-${idx} .task-checkbox`);
+                    const status = cb && cb.checked ? '✅' : '⬜';
+                    report += `${status} [后端] ${task.text}\n`;
+                });
+                
+                day.frontend.forEach((task, idx) => {
+                    const cb = document.querySelector(`#task-f-${day.day}-${idx} .task-checkbox`);
+                    const status = cb && cb.checked ? '✅' : '⬜';
+                    report += `${status} [前端] ${task.text}\n`;
+                });
+                
+                report += '\n';
+            });
+            
+            const blob = new Blob([report], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `SalesPilot_进度报告_${new Date().toLocaleDateString()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('📊 报告已导出', 'success');
+        }
+
+        // 显示通知
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                background: ${type === 'success' ? '#d4edda' : '#d1ecf1'};
+                color: ${type === 'success' ? '#155724' : '#0c5460'};
+                border-radius: 5px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 2000);
+        }
+
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 页面加载时初始化
+        init();
+    </script>
+</body>
+</html>

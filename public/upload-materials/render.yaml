@@ -1,0 +1,167 @@
+services:
+  - type: web
+    runtime: node
+    name: salepilot-backend
+    rootDir: backend
+    buildCommand: npm install --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/test
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "true"
+      - key: JSON_BODY_LIMIT
+        value: 1mb
+      - key: PORT
+        value: "5000"
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB_NAME
+        value: salepilot
+      - key: MONGODB_APP_NAME
+        value: salepilot-backend
+      - key: MONGODB_MAX_POOL_SIZE
+        value: "20"
+      - key: MONGODB_MIN_POOL_SIZE
+        value: "0"
+      - key: MONGODB_MAX_IDLE_TIME_MS
+        value: "60000"
+      - key: MONGODB_WAIT_QUEUE_TIMEOUT_MS
+        value: "10000"
+      - key: MONGODB_SERVER_SELECTION_TIMEOUT_MS
+        value: "5000"
+      - key: MONGODB_CONNECT_TIMEOUT_MS
+        value: "10000"
+      - key: MONGODB_SOCKET_TIMEOUT_MS
+        value: "45000"
+      - key: MONGODB_RETRY_WRITES
+        value: "true"
+      - key: MONGODB_RETRY_READS
+        value: "true"
+      - key: MONGODB_DIRECT_CONNECTION
+        value: "false"
+      - key: MONGODB_TLS
+        value: "true"
+      - key: FRONTEND_PUBLIC_URL
+        sync: false
+      - key: BACKEND_PUBLIC_URL
+        sync: false
+      - key: SWAGGER_SERVER_URL
+        sync: false
+      - key: OPENAPI_SERVER_URLS
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: SECURITY_HEADERS_ENABLED
+        value: "true"
+      - key: FRAME_OPTIONS
+        value: SAMEORIGIN
+      - key: REFERRER_POLICY
+        value: strict-origin-when-cross-origin
+      - key: PERMISSIONS_POLICY
+        value: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+      - key: CONTENT_SECURITY_POLICY
+        value: "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; object-src 'none'"
+      - key: CSP_REPORT_ONLY
+        value: "false"
+      - key: SECURITY_CSP_SKIP_PATHS
+        value: /api/docs,/api/docs/openapi.json
+      - key: HSTS_ENABLED
+        value: "true"
+      - key: HSTS_MAX_AGE
+        value: "31536000"
+      - key: HSTS_INCLUDE_SUBDOMAINS
+        value: "true"
+      - key: HSTS_PRELOAD
+        value: "false"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: AI_PROVIDER
+        value: tongyi
+      - key: AI_TIMEOUT_MS
+        value: "30000"
+      - key: AI_MAX_RETRY
+        value: "2"
+      - key: AI_RETRY_BASE_DELAY_MS
+        value: "1000"
+      - key: AI_RETRY_MAX_DELAY_MS
+        value: "8000"
+      - key: AI_STREAM_IDLE_TIMEOUT_MS
+        value: "30000"
+      - key: AI_MAX_TOKENS
+        value: "2048"
+      - key: AI_TEMPERATURE
+        value: "0.2"
+      - key: TONGYI_API_KEY
+        sync: false
+      - key: TONGYI_MODEL
+        value: qwen-plus
+      - key: TONGYI_BASE_URL
+        value: https://dashscope.aliyuncs.com/compatible-mode/v1
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: DEEPSEEK_MODEL
+        value: deepseek-chat
+      - key: DEEPSEEK_BASE_URL
+        value: https://api.deepseek.com/v1
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: OPENAI_BASE_URL
+        value: https://api.openai.com/v1
+      - key: AI_PROVIDER_NAME
+        sync: false
+      - key: AI_BASE_URL
+        sync: false
+      - key: AI_API_KEY
+        sync: false
+      - key: AI_MODEL
+        sync: false
+      - key: ERROR_LOG_FILE
+        value: ./logs/error.log
+      - key: DISABLE_API_RATE_LIMIT
+        value: "false"
+      - key: API_RATE_LIMIT_WINDOW_MS
+        value: "900000"
+      - key: API_RATE_LIMIT_MAX
+        value: "300"
+      - key: API_AUTH_RATE_LIMIT_WINDOW_MS
+        value: "900000"
+      - key: API_AUTH_REGISTER_RATE_LIMIT_MAX
+        value: "5"
+      - key: API_AUTH_LOGIN_RATE_LIMIT_MAX
+        value: "10"
+      - key: API_AUTH_REFRESH_RATE_LIMIT_MAX
+        value: "20"
+      - key: ENABLE_CHURN_WARNING_TASK
+        value: "true"
+      - key: CHURN_WARNING_TASK_HOUR
+        value: "9"
+      - key: CHURN_WARNING_TASK_MINUTE
+        value: "0"
+      - key: CHURN_WARNING_MIN_SCORE
+        value: "70"
+      - key: CHURN_WARNING_RUN_ON_START
+        value: "false"
+
+  - type: web
+    runtime: static
+    name: salepilot-frontend
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

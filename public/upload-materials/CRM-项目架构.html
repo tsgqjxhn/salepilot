@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 销售 CRM · 项目架构图</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0e1a;
+    font-family: 'Noto Sans SC', sans-serif;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 40px 32px 60px;
+  }
+
+  /* 顶部标题区 */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .header-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: #4ade80;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #f8fafc;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .header p {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 300;
+  }
+
+  /* 导出按钮 */
+  .export-btn {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    background: #4ade80;
+    color: #0a0e1a;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+    z-index: 100;
+    transition: all 0.2s;
+  }
+  .export-btn:hover { background: #86efac; transform: translateY(-1px); }
+
+  /* 主架构容器 */
+  .arch {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* 层级标签 */
+  .layer-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #475569;
+    margin-bottom: 10px;
+    padding-left: 4px;
+  }
+
+  /* 层级行 */
+  .layer {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 0;
+    align-items: stretch;
+  }
+
+  /* 箭头连接区 */
+  .connector {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 44px;
+    position: relative;
+  }
+  .connector::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, #1e3a5f, #4ade80, #1e3a5f);
+    opacity: 0.6;
+  }
+  .connector-arrow {
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid #4ade80;
+    border-bottom: 2px solid #4ade80;
+    transform: rotate(45deg);
+    position: relative;
+    z-index: 1;
+    margin-top: 12px;
+  }
+
+  /* 双向箭头区 */
+  .bidirect {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 44px;
+    padding: 0 60px;
+  }
+  .bidirect-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .bidirect-line {
+    width: 1px;
+    height: 20px;
+    background: linear-gradient(to bottom, #334155, #4ade80);
+    opacity: 0.7;
+  }
+  .bidirect-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4ade80;
+    opacity: 0.8;
+  }
+
+  /* 通用卡片 */
+  .card {
+    border-radius: 10px;
+    padding: 16px 18px;
+    border: 1px solid;
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.04;
+    background: radial-gradient(circle at 20% 20%, #fff 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-icon {
+    font-size: 15px;
+    line-height: 1;
+  }
+  .card-items {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .card-items li {
+    font-size: 11.5px;
+    color: #94a3b8;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    line-height: 1.4;
+  }
+  .card-items li::before {
+    content: '·';
+    color: inherit;
+    opacity: 0.5;
+    flex-shrink: 0;
+    margin-top: 0;
+  }
+  .tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-top: 10px;
+    letter-spacing: 0.05em;
+  }
+
+  /* 前端层 - 蓝色系 */
+  .card-frontend {
+    background: #0f1e38;
+    border-color: #1e3a5f;
+  }
+  .card-frontend .card-title { color: #60a5fa; }
+  .card-frontend .card-items li::before { color: #60a5fa; }
+  .card-frontend .tag { background: #1e3a5f; color: #60a5fa; }
+
+  /* 后端层 - 紫色系 */
+  .card-backend {
+    background: #150f2e;
+    border-color: #2d1f5e;
+  }
+  .card-backend .card-title { color: #a78bfa; }
+  .card-backend .card-items li::before { color: #a78bfa; }
+  .card-backend .tag { background: #2d1f5e; color: #a78bfa; }
+
+  /* AI层 - 绿色/金色 */
+  .card-ai {
+    background: #0f2218;
+    border-color: #1a4a2e;
+  }
+  .card-ai .card-title { color: #4ade80; }
+  .card-ai .card-items li::before { color: #4ade80; }
+  .card-ai .tag { background: #1a4a2e; color: #4ade80; }
+
+  /* 数据层 - 橙色系 */
+  .card-data {
+    background: #1e1408;
+    border-color: #3d2a0f;
+  }
+  .card-data .card-title { color: #fb923c; }
+  .card-data .card-items li::before { color: #fb923c; }
+  .card-data .tag { background: #3d2a0f; color: #fb923c; }
+
+  /* 核心流程图 */
+  .flow-section {
+    margin-top: 52px;
+  }
+  .flow-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #475569;
+    margin-bottom: 16px;
+    padding-left: 4px;
+  }
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: #0d1117;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding: 24px 28px;
+    overflow-x: auto;
+  }
+  .flow-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    min-width: 110px;
+  }
+  .flow-bubble {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    position: relative;
+  }
+  .flow-bubble-label {
+    font-size: 11px;
+    color: #94a3b8;
+    text-align: center;
+    line-height: 1.3;
+    font-weight: 500;
+  }
+  .flow-bubble-sub {
+    font-size: 9.5px;
+    color: #475569;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .flow-arrow {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, #334155, #4ade80, #334155);
+    min-width: 24px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .flow-arrow::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: -4px;
+    width: 8px;
+    height: 8px;
+    border-right: 1.5px solid #4ade80;
+    border-bottom: 1.5px solid #4ade80;
+    transform: rotate(-45deg);
+  }
+
+  .bubble-blue { background: #1e3a5f; }
+  .bubble-purple { background: #2d1f5e; }
+  .bubble-green { background: #1a4a2e; }
+  .bubble-orange { background: #3d2a0f; }
+  .bubble-teal { background: #0f2d35; }
+
+  /* 简历亮点区 */
+  .highlights {
+    margin-top: 52px;
+    background: #0d1117;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding: 24px 28px;
+  }
+  .highlights-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #475569;
+    margin-bottom: 16px;
+  }
+  .highlights-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .highlight-item {
+    background: #0f1e38;
+    border: 1px solid #1e3a5f;
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .highlight-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: #4ade80;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .highlight-desc {
+    font-size: 11px;
+    color: #64748b;
+    line-height: 1.5;
+  }
+
+  /* 底部水印 */
+  .footer {
+    text-align: center;
+    margin-top: 48px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #334155;
+    letter-spacing: 0.1em;
+  }
+</style>
+</head>
+<body>
+
+<button class="export-btn" onclick="exportPNG()">⬇ 导出 PNG</button>
+
+<div id="main-content">
+  <div class="header">
+    <div class="header-label">Architecture Overview · v1.0</div>
+    <h1>AI 销售 CRM · 项目架构图</h1>
+    <p>SalesPilot — Vue3 + Node.js + AI 预测分析 · 全栈 SaaS 项目</p>
+  </div>
+
+  <div class="arch">
+
+    <!-- 前端层 -->
+    <div class="layer-label">① 前端层 · Frontend</div>
+    <div class="layer">
+      <div class="card card-frontend">
+        <div class="card-title"><span class="card-icon">🖥</span>页面与路由</div>
+        <ul class="card-items">
+          <li>登录 / 注册页（JWT鉴权）</li>
+          <li>客户列表 + 详情页</li>
+          <li>销售漏斗看板</li>
+          <li>AI 分析大盘</li>
+          <li>设置 / 团队管理</li>
+        </ul>
+        <span class="tag">Vue Router 4</span>
+      </div>
+      <div class="card card-frontend">
+        <div class="card-title"><span class="card-icon">🧩</span>状态管理</div>
+        <ul class="card-items">
+          <li>用户 Store（登录态/权限）</li>
+          <li>客户 Store（列表缓存）</li>
+          <li>AI分析结果 Store</li>
+          <li>通知消息 Store</li>
+        </ul>
+        <span class="tag">Pinia</span>
+      </div>
+      <div class="card card-frontend">
+        <div class="card-title"><span class="card-icon">📊</span>数据可视化</div>
+        <ul class="card-items">
+          <li>销售额趋势折线图</li>
+          <li>客户来源分布饼图</li>
+          <li>转化漏斗图</li>
+          <li>AI预测置信度图</li>
+        </ul>
+        <span class="tag">ECharts 5</span>
+      </div>
+      <div class="card card-frontend">
+        <div class="card-title"><span class="card-icon">🎨</span>UI 组件</div>
+        <ul class="card-items">
+          <li>表单 / 弹窗 / 表格</li>
+          <li>拖拽看板（VueUse）</li>
+          <li>Markdown 渲染（AI报告）</li>
+          <li>SSE 流式输出组件</li>
+        </ul>
+        <span class="tag">Element Plus</span>
+      </div>
+    </div>
+
+    <!-- 连接箭头 -->
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- 后端层 -->
+    <div class="layer-label">② 后端层 · Backend（Node.js）</div>
+    <div class="layer">
+      <div class="card card-backend">
+        <div class="card-title"><span class="card-icon">🔐</span>认证模块</div>
+        <ul class="card-items">
+          <li>JWT 签发 / 刷新 / 注销</li>
+          <li>角色权限控制（RBAC）</li>
+          <li>密码加密（bcrypt）</li>
+          <li>中间件鉴权</li>
+        </ul>
+        <span class="tag">Express + JWT</span>
+      </div>
+      <div class="card card-backend">
+        <div class="card-title"><span class="card-icon">👥</span>客户模块</div>
+        <ul class="card-items">
+          <li>客户 CRUD 接口</li>
+          <li>跟进记录管理</li>
+          <li>客户状态流转</li>
+          <li>搜索 / 筛选 / 分页</li>
+        </ul>
+        <span class="tag">RESTful API</span>
+      </div>
+      <div class="card card-backend">
+        <div class="card-title"><span class="card-icon">🤖</span>AI 代理模块</div>
+        <ul class="card-items">
+          <li>拼接客户数据 + Prompt</li>
+          <li>调用大模型 API</li>
+          <li>SSE 流式转发前端</li>
+          <li>结果持久化存库</li>
+        </ul>
+        <span class="tag">AI Gateway</span>
+      </div>
+      <div class="card card-backend">
+        <div class="card-title"><span class="card-icon">📈</span>统计模块</div>
+        <ul class="card-items">
+          <li>销售额聚合查询</li>
+          <li>转化率计算</li>
+          <li>团队排行榜</li>
+          <li>定时任务（流失预警）</li>
+        </ul>
+        <span class="tag">Aggregation Pipeline</span>
+      </div>
+    </div>
+
+    <!-- 连接箭头 -->
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- AI层 -->
+    <div class="layer-label">③ AI 核心层 · Intelligence</div>
+    <div class="layer">
+      <div class="card card-ai" style="flex: 2;">
+        <div class="card-title"><span class="card-icon">🧠</span>AI 功能 #1 · 成交概率预测</div>
+        <ul class="card-items">
+          <li>输入：客户基本信息 + 全部跟进记录 + 行业标签</li>
+          <li>处理：大模型分析沟通质量、意向信号、决策链完整性</li>
+          <li>输出：成交概率评分 0-100 + 3条关键风险提示</li>
+        </ul>
+        <span class="tag">核心差异化功能</span>
+      </div>
+      <div class="card card-ai" style="flex: 2;">
+        <div class="card-title"><span class="card-icon">⚠️</span>AI 功能 #2 · 流失预警</div>
+        <ul class="card-items">
+          <li>输入：客户最后互动时间 + 跟进频率变化曲线</li>
+          <li>处理：AI 判断是否进入冷却期，结合历史流失模式</li>
+          <li>输出：预警等级（高/中/低）+ 建议跟进话术</li>
+        </ul>
+        <span class="tag">定时触发</span>
+      </div>
+      <div class="card card-ai" style="flex: 3;">
+        <div class="card-title"><span class="card-icon">📋</span>AI 功能 #3 · 销售日报生成</div>
+        <ul class="card-items">
+          <li>输入：今日所有跟进记录 + 新增客户 + 成交情况</li>
+          <li>处理：AI 汇总提炼，生成结构化 Markdown 报告</li>
+          <li>输出：流式输出打字效果，支持一键复制发钉钉/微信</li>
+        </ul>
+        <span class="tag">SSE 流式输出</span>
+      </div>
+    </div>
+
+    <!-- 双向箭头 -->
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- 数据层 -->
+    <div class="layer-label">④ 数据层 · Data</div>
+    <div class="layer">
+      <div class="card card-data" style="flex: 2;">
+        <div class="card-title"><span class="card-icon">🗄</span>MongoDB</div>
+        <ul class="card-items">
+          <li>users（用户/角色/权限）</li>
+          <li>customers（客户主表）</li>
+          <li>followups（跟进记录）</li>
+          <li>ai_results（AI分析缓存）</li>
+          <li>notifications（预警消息）</li>
+        </ul>
+        <span class="tag">主数据库</span>
+      </div>
+      <div class="card card-data" style="flex: 1;">
+        <div class="card-title"><span class="card-icon">⚡</span>Redis（可选）</div>
+        <ul class="card-items">
+          <li>JWT 黑名单</li>
+          <li>AI 结果缓存</li>
+          <li>限流计数器</li>
+        </ul>
+        <span class="tag">后期迭代</span>
+      </div>
+      <div class="card card-data" style="flex: 1;">
+        <div class="card-title"><span class="card-icon">☁️</span>部署</div>
+        <ul class="card-items">
+          <li>前端：Vercel（免费）</li>
+          <li>后端：Railway / Render</li>
+          <li>DB：MongoDB Atlas</li>
+        </ul>
+        <span class="tag">全免费方案</span>
+      </div>
+      <div class="card card-data" style="flex: 1;">
+        <div class="card-title"><span class="card-icon">🔑</span>外部 API</div>
+        <ul class="card-items">
+          <li>通义千问（国内稳定）</li>
+          <li>或 DeepSeek API</li>
+          <li>或 OpenAI（备选）</li>
+        </ul>
+        <span class="tag">大模型接入</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 核心业务流程 -->
+  <div class="flow-section">
+    <div class="flow-title">核心业务流程 · AI 成交预测全链路</div>
+    <div class="flow">
+      <div class="flow-node">
+        <div class="flow-bubble bubble-blue">👤</div>
+        <div class="flow-bubble-label">销售员<br>录入跟进</div>
+        <div class="flow-bubble-sub">前端表单</div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node">
+        <div class="flow-bubble bubble-purple">📡</div>
+        <div class="flow-bubble-label">后端接收<br>存库</div>
+        <div class="flow-bubble-sub">Node.js API</div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node">
+        <div class="flow-bubble bubble-purple">🔧</div>
+        <div class="flow-bubble-label">AI代理<br>拼装Prompt</div>
+        <div class="flow-bubble-sub">结构化数据</div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node">
+        <div class="flow-bubble bubble-green">🧠</div>
+        <div class="flow-bubble-label">大模型<br>分析推理</div>
+        <div class="flow-bubble-sub">通义/DeepSeek</div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node">
+        <div class="flow-bubble bubble-teal">📡</div>
+        <div class="flow-bubble-label">SSE流式<br>返回前端</div>
+        <div class="flow-bubble-sub">实时打字效果</div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node">
+        <div class="flow-bubble bubble-orange">💾</div>
+        <div class="flow-bubble-label">结果入库<br>缓存</div>
+        <div class="flow-bubble-sub">MongoDB</div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node">
+        <div class="flow-bubble bubble-blue">📊</div>
+        <div class="flow-bubble-label">可视化展示<br>评分+建议</div>
+        <div class="flow-bubble-sub">ECharts大盘</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 简历亮点数据 -->
+  <div class="highlights">
+    <div class="highlights-title">简历量化亮点 · Resume Metrics</div>
+    <div class="highlights-grid">
+      <div class="highlight-item">
+        <div class="highlight-num">3</div>
+        <div class="highlight-desc">个 AI 核心功能<br>预测 / 预警 / 日报</div>
+      </div>
+      <div class="highlight-item">
+        <div class="highlight-num">SSE</div>
+        <div class="highlight-desc">流式输出实现<br>首字响应 &lt;300ms</div>
+      </div>
+      <div class="highlight-item">
+        <div class="highlight-num">RBAC</div>
+        <div class="highlight-desc">角色权限系统<br>管理员/销售/主管</div>
+      </div>
+      <div class="highlight-item">
+        <div class="highlight-num">全栈</div>
+        <div class="highlight-desc">前端 Vue3 + 后端 Node.js<br>独立完成端到端</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">SALEPILOT · AI SALES CRM · ARCHITECTURE v1.0 · 2026</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+async function exportPNG() {
+  const btn = document.querySelector('.export-btn');
+  btn.textContent = '导出中...';
+  btn.style.opacity = '0.6';
+
+  try {
+    const canvas = await html2canvas(document.getElementById('main-content'), {
+      backgroundColor: '#0a0e1a',
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      logging: false,
+    });
+
+    const link = document.createElement('a');
+    link.download = 'AI销售CRM架构图.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch(e) {
+    alert('导出失败，请截图保存');
+  }
+
+  btn.textContent = '⬇ 导出 PNG';
+  btn.style.opacity = '1';
+}
+</script>
+</body>
+</html>
