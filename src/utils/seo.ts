@@ -9,32 +9,40 @@ const DEFAULT_KEYWORDS =
 const DEFAULT_IMAGE_PATH = "headericon.svg";
 
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, "");
+const ensureTrailingSlash = (value: string) => `${trimTrailingSlash(value)}/`;
 
-const resolveSiteOrigin = () => {
+const resolveSiteBaseUrl = () => {
   const configuredSiteUrl = import.meta.env.VITE_SITE_URL?.trim();
   if (configuredSiteUrl) {
-    return trimTrailingSlash(configuredSiteUrl);
+    return ensureTrailingSlash(configuredSiteUrl);
   }
 
-  if (typeof window !== "undefined" && window.location.origin) {
-    return trimTrailingSlash(window.location.origin);
+  if (typeof window !== "undefined" && window.location.href) {
+    try {
+      return new URL(import.meta.env.BASE_URL || "./", window.location.href)
+        .toString();
+    } catch {
+      if (window.location.origin) {
+        return `${window.location.origin}/`;
+      }
+    }
   }
 
   return "";
 };
 
-const toAbsoluteUrl = (value: string, siteOrigin: string) => {
+const toAbsoluteUrl = (value: string, siteBaseUrl: string) => {
   if (!value) {
     return "";
   }
 
   try {
-    if (siteOrigin) {
-      return new URL(value, `${siteOrigin}/`).toString();
+    if (siteBaseUrl) {
+      return new URL(value, siteBaseUrl).toString();
     }
 
-    if (typeof window !== "undefined" && window.location.origin) {
-      return new URL(value, window.location.origin).toString();
+    if (typeof window !== "undefined" && window.location.href) {
+      return new URL(value, window.location.href).toString();
     }
   } catch {
     return value;
@@ -97,12 +105,37 @@ const resolveSeoMeta = (route: RouteLocationNormalized) => (
   }, {})
 );
 
+const shouldUseHashSeoUrls = () => {
+  const configuredHistory = String(import.meta.env.VITE_ROUTER_HISTORY || "")
+    .trim()
+    .toLowerCase();
+
+  return configuredHistory === "hash" || import.meta.env.BASE_URL === "./";
+};
+
+const resolveCanonicalUrl = (
+  route: RouteLocationNormalized,
+  siteBaseUrl: string,
+) => {
+  const routePath = route.fullPath || route.path || "/";
+
+  if (!siteBaseUrl) {
+    return routePath;
+  }
+
+  if (shouldUseHashSeoUrls()) {
+    return `${siteBaseUrl}#${routePath}`;
+  }
+
+  return toAbsoluteUrl(routePath.replace(/^\/+/, ""), siteBaseUrl);
+};
+
 export const applyRouteSeo = (route: RouteLocationNormalized) => {
   if (typeof document === "undefined") {
     return;
   }
 
-  const siteOrigin = resolveSiteOrigin();
+  const siteBaseUrl = resolveSiteBaseUrl();
   const seo = resolveSeoMeta(route);
   const fallbackTitle = typeof route.name === "string" && route.name.trim()
     ? formatRouteName(route.name)
@@ -115,10 +148,8 @@ export const applyRouteSeo = (route: RouteLocationNormalized) => {
   const keywords = seo.keywords?.trim() || DEFAULT_KEYWORDS;
   const type = seo.type || "website";
   const noindex = seo.noindex ?? Boolean(route.meta.requiresAuth);
-  const canonicalUrl = siteOrigin
-    ? toAbsoluteUrl(route.path || "/", siteOrigin)
-    : route.path || "/";
-  const imageUrl = toAbsoluteUrl(seo.image || DEFAULT_IMAGE_PATH, siteOrigin);
+  const canonicalUrl = resolveCanonicalUrl(route, siteBaseUrl);
+  const imageUrl = toAbsoluteUrl(seo.image || DEFAULT_IMAGE_PATH, siteBaseUrl);
 
   document.title = resolvedTitle === APP_NAME ? DEFAULT_TITLE : fullTitle;
   document.documentElement.setAttribute("lang", "zh-CN");

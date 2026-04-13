@@ -6,6 +6,7 @@ dist/
 !.env.example
 !.env.development.example
 !.env.production.example
+!.env.github
 
 .vercel/
 *.log

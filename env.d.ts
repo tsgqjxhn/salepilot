@@ -24,6 +24,8 @@ interface ImportMetaEnv {
   readonly VITE_DROP_CONSOLE?: string;
   readonly VITE_DROP_DEBUGGER?: string;
   readonly VITE_ENABLE_DEVTOOLS?: string;
+  readonly VITE_FRONTEND_ONLY_MODE?: string;
+  readonly VITE_ROUTER_HISTORY?: "web" | "hash";
 }
 
 interface ImportMeta {

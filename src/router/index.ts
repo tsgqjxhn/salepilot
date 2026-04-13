@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHashHistory, createWebHistory } from "vue-router";
 import type { RouteLocationNormalized } from "vue-router";
 import { ElMessage } from "element-plus";
 import { useAuthStore } from "@/stores/auth";
@@ -494,8 +494,21 @@ const routes = [
   },
 ];
 
+const createRouterHistory = () => {
+  const configuredHistory = String(import.meta.env.VITE_ROUTER_HISTORY || "")
+    .trim()
+    .toLowerCase();
+  const viteBaseUrl = import.meta.env.BASE_URL || "/";
+
+  if (configuredHistory === "hash" || viteBaseUrl === "./") {
+    return createWebHashHistory();
+  }
+
+  return createWebHistory(viteBaseUrl);
+};
+
 const router = createRouter({
-  history: createWebHistory(),
+  history: createRouterHistory(),
   routes,
 });
 
