@@ -542,21 +542,19 @@ router.beforeEach(async (to, from, next) => {
   }
 
   if (to.meta.requiresAuth && !token) {
-    await authStore.enableFrontendOnlySession({});
-    token = authStore.getAccessToken();
+    if (FRONTEND_ONLY_MODE) {
+      await authStore.enableFrontendOnlySession({});
+      token = authStore.getAccessToken();
+    } else {
+      const reason = hadRefreshToken ? "session-expired" : "auth-required";
+      saveAuthSessionNotice(createAuthSessionNotice(reason, to.fullPath));
+      next(buildLoginRedirectPath(reason, to.fullPath));
+      return;
+    }
   }
 
   if (to.meta.guestOnly && token && !FRONTEND_ONLY_MODE) {
     next("/customer");
-    return;
-  }
-
-  if (
-    FRONTEND_ONLY_MODE &&
-    token &&
-    to.meta.guestOnly
-  ) {
-    next(FRONTEND_ONLY_WORKSPACE_ROUTE);
     return;
   }
 

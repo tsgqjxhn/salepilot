@@ -53,17 +53,19 @@
 
 *销售工作台 - 统一管理客户、报表和通知*
 
-#### AI 洞察面板
+#### 注册欢迎组件
 
 ![欢迎轮播图](./image/欢迎-轮播图.png)
 
-*AI 每日洞察 - 智能分析销售数据并提供建议*
+*欢迎轮播图，填写基本信息*
 
 #### 用户认证
 
 ![登录](./image/登录.png)
 
 *安全登录系统*
+
+#### 用户注册
 
 ![注册](./image/注册.png)
 
@@ -79,11 +81,13 @@
 
 *个人账户管理*
 
-#### 其他页面
+#### 其他页面-套餐
 
 ![定价页面](./image/定价.png)
 
 *产品定价方案*
+
+#### 其他界面-开发者
 
 ![开发者页面](./image/开发者.png)
 
@@ -132,24 +136,96 @@ npm install
 
 ### 3. 环境配置
 
-创建 `.env.local` 文件：
+项目支持多种环境配置文件，请根据需要选择并配置：
+
+#### 开发环境配置
+
+复制 `.env.development.example` 为 `.env.development`：
 
 ```env
-# 开发服务器配置
-VITE_DEV_SERVER_PORT=5173
-VITE_DEV_SERVER_HOST=127.0.0.1
+# 应用基础配置
+VITE_APP_BASE=/
+VITE_SITE_URL=http://localhost:5173
 
-# API 代理配置
+# 开发服务器
+VITE_DEV_SERVER_HOST=127.0.0.1
+VITE_DEV_SERVER_PORT=5173
+
+# API 代理（对接后端服务）
+VITE_API_BASE_URL=/api
 VITE_DEV_PROXY_TARGET=http://localhost:5000
 
+# 预览服务器
+VITE_PREVIEW_HOST=127.0.0.1
+VITE_PREVIEW_PORT=4173
+
 # 构建配置
-VITE_APP_BASE=/
 VITE_BUILD_TARGET=es2020
 VITE_BUILD_OUT_DIR=dist
+VITE_BUILD_ASSETS_DIR=assets
+VITE_BUILD_SOURCEMAP=true  # 开发环境开启 source map
+VITE_BUILD_MANIFEST=false
+VITE_BUILD_CSS_CODE_SPLIT=true
+VITE_BUILD_REPORT_COMPRESSED_SIZE=true
+VITE_BUILD_MINIFY=esbuild
+VITE_CHUNK_SIZE_WARNING_LIMIT=1200
 
-# 开发工具
+# 代码优化
+VITE_DROP_CONSOLE=false  # 开发环境保留 console
+VITE_DROP_DEBUGGER=false # 开发环境保留 debugger
 VITE_ENABLE_DEVTOOLS=true
+
+# 第三方服务集成
+VITE_GITHUB_CLIENT_ID=  # GitHub OAuth 客户端 ID
 ```
+
+#### 生产环境配置
+
+复制 `.env.production.example` 为 `.env.production`：
+
+```env
+# 应用基础配置
+VITE_APP_BASE=/
+VITE_SITE_URL=https://your-domain.com
+
+# 构建配置
+VITE_BUILD_TARGET=es2020
+VITE_BUILD_OUT_DIR=dist
+VITE_BUILD_ASSETS_DIR=assets
+VITE_BUILD_SOURCEMAP=false  # 生产环境关闭 source map
+VITE_BUILD_MANIFEST=false
+VITE_BUILD_CSS_CODE_SPLIT=true
+VITE_BUILD_REPORT_COMPRESSED_SIZE=true
+VITE_BUILD_MINIFY=esbuild
+VITE_CHUNK_SIZE_WARNING_LIMIT=1200
+
+# 代码优化
+VITE_DROP_CONSOLE=false  # 生产环境可选：true 表示移除所有 console
+VITE_DROP_DEBUGGER=true  # 生产环境移除 debugger
+VITE_ENABLE_DEVTOOLS=false
+```
+
+#### 本地开发配置
+
+创建 `.env.local` 文件（优先级最高）：
+
+```env
+# 覆盖默认的配置值
+# 例如：
+# VITE_DEV_SERVER_PORT=3000
+# VITE_API_BASE_URL=http://api.test.com
+```
+
+#### 环境变量说明
+
+| 变量名 | 默认值 | 说明 |
+|--------|--------|------|
+| `VITE_APP_BASE` | `/` | 应用基础路径 |
+| `VITE_SITE_URL` | - | 站点 URL，用于生成绝对路径 |
+| `VITE_API_BASE_URL` | `/api` | API 请求基础路径 |
+| `VITE_DEV_PROXY_TARGET` | `http://localhost:5000` | API 代理目标地址 |
+| `VITE_ENABLE_DEVTOOLS` | `true` | 是否启用 Vue DevTools |
+| `VITE_BUILD_MINIFY` | `esbuild` | 代码压缩方式：`false`/`terser`/`esbuild` |
 
 ### 4. 启动开发服务器
 
@@ -446,6 +522,20 @@ export const useCustomerStore = defineStore('customer', {
 
 > **注意**: 作为纯前端静态项目，API 调用主要用于演示目的。实际部署时，需要配置真实后端服务。
 
+### 环境配置要求
+
+API 集成需要配置以下环境变量：
+
+```env
+# API 基础路径
+VITE_API_BASE_URL=/api  # 开发环境使用代理
+# 或
+VITE_API_BASE_URL=https://api.your-domain.com  # 生产环境真实地址
+
+# 开发环境代理配置
+VITE_DEV_PROXY_TARGET=http://localhost:5000  # 后端服务地址
+```
+
 ### API 配置
 
 ```typescript
@@ -508,6 +598,46 @@ export const customerApi = {
 | eslint | ^10.1.0 | 代码检查 |
 | prettier | ^3.8.1 | 代码格式化 |
 | @playwright/test | ^1.59.1 | E2E 测试 |
+
+---
+
+## ⚙️ 环境配置总结
+
+### 环境文件说明
+
+| 文件 | 用途 | 优先级 |
+|------|------|--------|
+| `.env` | 默认环境变量 | 最低 |
+| `.env.local` | 本地覆盖文件（不提交到 Git） | 高 |
+| `.env.development` | 开发环境变量 | 中 |
+| `.env.production` | 生产环境变量 | 中 |
+| `.env.*.example` | 模板文件，供参考 | - |
+
+### 必需配置
+
+#### 开发环境
+- 无需配置，使用默认值即可运行演示
+
+#### 生产部署
+- **必须配置**: `VITE_SITE_URL` - 设置您的域名
+- **可选**: `VITE_API_BASE_URL` - 如果需要真实 API
+
+### 第三方服务集成
+
+项目支持集成以下服务，需在环境变量中配置：
+
+```env
+# GitHub OAuth
+VITE_GITHUB_CLIENT_ID=your_github_client_id
+
+# OpenAI（可选）
+VITE_OPENAI_API_KEY=your_openai_key
+VITE_OPENAI_BASE_URL=https://api.openai.com/v1  # 或自定义代理
+
+# 其他 AI 服务
+# VITE_CLAUDE_API_KEY=
+# VITE_GEMINI_API_KEY=
+```
 
 ---
 

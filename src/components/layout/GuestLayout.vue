@@ -3,7 +3,7 @@
     <header class="guest-header">
       <div class="guest-header__inner">
         <router-link to="/home" class="brand">
-          <img src="/headericon.svg" alt="SalePilot logo" class="brand__logo" />
+          <img :src="logoUrl" alt="SalePilot logo" class="brand__logo" />
           <div>
             <strong>SalePilot</strong>
             <span>{{ bilingual("", "AI Sales Workspace") }}</span>
@@ -65,6 +65,7 @@
 <script setup lang="ts">
 import { useRoute } from "vue-router";
 import { useLocalizedText } from "@/composables/useLocalizedText";
+import logoUrl from "../../assets/headericon.svg";
 
 defineOptions({
   name: "GuestLayout",

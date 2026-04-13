@@ -6,7 +6,7 @@ const DEFAULT_DESCRIPTION =
   "SalePilot is an AI-powered sales workspace for customer management, follow-ups, daily reports, notifications, and revenue analytics.";
 const DEFAULT_KEYWORDS =
   "SalePilot, CRM, sales workspace, customer management, AI sales analysis, sales dashboard, daily report";
-const DEFAULT_IMAGE_PATH = "/headericon.svg";
+const DEFAULT_IMAGE_PATH = "headericon.svg";
 
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, "");
 
